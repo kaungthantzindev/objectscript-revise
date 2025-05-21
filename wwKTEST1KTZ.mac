@@ -244,3 +244,19 @@ Q14;From the group permission master only, delete entries whose routine names st
         }
     }
     Quit
+
+Q15;From the employee permission records for routine "INQWMS0030", display all employee names in ascending order of the update date.If the update date is the same, sort by ascending employee number.
+    Write "15. 「INQWMS0030」の社員権限マスタより、更新日が古い順に社員名を全て表示してください。更新日が同じ場合は社員番号の昇順に並べてください。", !
+        Set K1 = "INQWMS0030"
+        Set employeeID = ""
+        For {
+            Set employeeID = $ORDER(^MKEN2KTZ(K1, "SYA", employeeID))
+            Quit:employeeID=""
+            Set data = ^MKEN2KTZ(K1, "SYA", employeeID)
+            Set employeeName = $PIECE($GET(^MSYA(employeeID)), $CHAR(22), 1) 
+            Write employeeID, " : ", employeeName, !
+
+            #; here again, I think we need explaination of ^MSYA table structure or may be I don't understand the question
+        }
+        Quit
+
