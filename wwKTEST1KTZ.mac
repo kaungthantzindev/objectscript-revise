@@ -260,3 +260,16 @@ Q15;From the employee permission records for routine "INQWMS0030", display all e
         }
         Quit
 
+Q16;From the authorization master, display the routines that have only group permissions (and no employee permissions).
+    Write "16. 権限マスタより、グループ権限しかもたないルーチンを表示してください。", !
+    Set K1 = ""
+    For {
+        Set K1 = $ORDER(^MKEN2KTZ(K1))
+        Quit:K1=""
+        If $DATA(^MKEN2KTZ(K1, "GRP")) && '$DATA(^MKEN2KTZ(K1, "SYA")) {
+            Write K1, !
+        }
+    }
+
+    Quit
+
