@@ -1,0 +1,157 @@
+ROUTINE wwKTEST1KTZ
+wwKTEST1KTZ ;
+
+Q1;
+    Write "1. 権限マスタに現在何件のルーチンが登録されているか表示してください。", !
+    Set count = 0
+    Set K1 = ""
+    For {
+        Set K1 = $ORDER(^MKEN1KTZ(K1))
+        If K1 = "" Quit 
+        Set count = count + 1
+    }
+
+    Write "Total registered routines : ", count
+
+Q2;
+    Write "2. 権限マスタより、「ABCNS0151」のデータを取得し、セミコロン(;)区切りで表示してください。", !
+    Set K1 = "ABCNS0151"
+    If '$DATA(^MKEN1KTZ(K1)) {
+        Write "No data found", !
+        Quit
+    }
+
+    Set data = ^MKEN1KTZ(K1)
+
+    Set P1 = $PIECE(data, $CHAR(22), 1)
+    Set P2 = $PIECE(data, $CHAR(22), 2)
+    Set P3 = $PIECE(data, $CHAR(22), 3)
+    Write P1, ";", P2, ";", P3
+
+Q3;
+    Write "3. ルーチンIDの先頭がDであるものを全て出力してください。", !
+    Set K1 = ""
+    For {
+        Set K1 = $ORDER(^MKEN1KTZ(K1))
+        If K1 = "" Quit
+        If $EXTRACT(K1, 1) = "D" {
+            Write K1, ! 
+        }
+    }
+    Quit
+
+Q4
+    Write "4. 権限マスタから先頭が「w」であるものを削除してください。", !
+    Set K1 = ""
+    For {
+        Set K1 = $ORDER(^MKEN1KTZ(K1))
+        If K1 = "" Quit
+        Set data = $EXTRACT(K1,1)
+        #; we can use $ZCONVERT to check uppercase and lowercase
+        If $EXTRACT(K1,1) = "w" {
+            Kill ^MKEN1KTZ(K1)
+        }
+    }
+    Write "Killed!!"
+    Quit 
+
+Q5
+    Write "5. 権限マスタより、「KEIW0011」のデータを取得し、そのルーチンの権限を持っているグループ名を全て表示してください。", !
+
+    Set K1 = "KEIW0011"
+    Set data = $GET(^MKEN1KTZ(K1))
+    Set groupCodes = $PIECE(data, $CHAR(22), 1)
+    Set splittedGroupCodes = $LISTFROMSTRING(groupCodes, "/")
+    For position = 1:1:$LISTLENGTH(splittedGroupCodes) {
+        Set groupCode = $LISTGET(splittedGroupCodes, position)
+        Set groupName = $GET(^MDIC("職務グループ", groupCode), "Unknown")
+        Write "Group code : ", groupCode, " | Group name : ", $LISTGET(groupName), !
+    }
+
+    Quit
+
+Q6;
+    Write "6. 権限マスタより、「swAHS」のデータを取得し、更新日と登録日をYYYY年MM月DD日として表示してください。", !
+    Set K1 = "swAHS"
+    Set data = $GET(^MKEN1KTZ(K1))
+    If data = "" {
+        Write "No data found",!
+        Quit
+    }
+    Set updatedDate = $PIECE(data, $CHAR(22), 2)
+    Set registeredDate = $PIECE(data, $CHAR(22), 3)
+    Write "[swAHS] の data : ", data, !
+    Write "Updated Date : ", updatedDate, " | Registered Date : ", registeredDate, !
+    Quit
+
+Q7;
+    Write "7. 権限マスタより、「INQWMS0030」のデータを取得し、管理グループに「A」を追加して更新してください。（更新日も更新", !
+    Set K1 = "INQWMS0030"
+    Set data = $GET(^MKEN1KTZ(K1))
+    Set originalGroupCode = $PIECE(data, $CHAR(22), 1)
+    Set originalUpdateDate = $PIECE(data, $CHAR(22), 2)
+    If $FIND(originalGroupCode, "A") > 0 {
+        Write "A already exist!", !
+        Quit
+    }
+
+    Set tempGroupCode = originalGroupCode_"/A"
+    Set updatedGroupCode = $REPLACE(data, originalGroupCode, tempGroupCode)
+    Set ^MKEN1KTZ(K1) = updatedGroupCode
+    Set newUpdateDate = $REPLACE(^MKEN1KTZ(K1), originalUpdateDate, $ZDATE($HOROLOG, 8), 1, 1) 
+    Set ^MKEN1KTZ(K1) = newUpdateDate
+    Write ^MKEN1KTZ(K1)
+    Quit
+    
+    
+Q8;
+    Write "5. 権限マスタより、「MSTMZATUSHO」のデータを取得し、職務グループマスタに存在しないｸﾞﾙｰﾌﾟｺｰﾄﾞがあった場合、削除して更新してください。", !
+    Set K1 = "MSTMZATUSHO"
+    Set data = $GET(^MKEN1KTZ(K1))
+    Set groupCodes = $PIECE(data, $CHAR(22), 1)
+    Set groupStr = $LISTFROMSTRING(groupCodes , "/")
+    Write data, !
+    For i = 1:1:$LISTLENGTH(groupStr) {
+        Set groupCode = $LISTGET(groupStr , i)
+        Set groupName = $GET(^MDIC("職務グループ", groupCode))
+        If groupName = "" {
+            Set updatedData = $REPLACE(data, "/"_groupCode, "")
+            Set ^MKEN1KTZ(K1) = updatedData
+        }
+    }
+
+    Quit
+
+Q9;
+    Write "5. グループコードを入力すると、そのグループに権限のあるルーチンを全て表示するようにしてください。",!
+    Read "Enter a group code : " , groupCode, !
+    Set K1 = ""
+    For {
+        Set K1 = $ORDER(^MKEN1KTZ(K1))
+        Quit:K1=""
+        Set data = $GET(^MKEN1KTZ(K1))
+        If $FIND(data , groupCode) > 0 {
+            Write K1, " : ", data, !
+        }
+    }
+    Quit
+
+Q10;
+    Write "10.「KEIW0011」のグループ権限レコードに「Q、R、S、T、U、W」のグループを登録してください。", !
+    Set K1 = "KEIW0011"
+    Set groupCodes = $LISTBUILD("Q","R","S","T","U","W")
+    For i = 1:1:$LISTLENGTH(groupCodes) {
+        Set groupCode = $LISTGET(groupCodes, i)
+        Set ^MKEN2KTZ(K1, "GRP", groupCode) = $ZDATE($HOROLOG, 8)
+    }
+    Write "Done !", !
+    Quit
+
+Q11;
+    Write "11. 権限マスタに登録されているルーチンが社員権限とグループ権限それぞれ何件ずつ登録されているか全て表示してください。", !
+    Set K1 = ""
+    For {
+        Set key = $ORDER(array(key))
+        Quit:key=""
+        // process array(key)
+    }
