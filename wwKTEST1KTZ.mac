@@ -225,3 +225,22 @@ Q13;From the employee permission records, display all routines that have at leas
     }
 
     Quit
+
+Q14;From the group permission master only, delete entries whose routine names start with "w". Do not delete the base records.
+    Write !,"15. グループ権限マスタのみから、先頭がwであるものを削除してください。基本レコードは消さないでください。", !
+    Set K1 = ""
+    For {
+        Set K1 = $ORDER(^MKEN2KTZ(K1))
+        Quit:K1=""
+        
+        Set employeeID = ""
+        For {
+            Set employeeID = $ORDER(^MKEN2KTZ(K1, "GRP", employeeID))
+            Quit:employeeID=""
+            If $ZCONVERT($EXTRACT(K1, 1, 1), "U")="W" {
+                Kill ^MKEN2KTZ(K1, "GRP", employeeID)
+                Write "Deleted : ", K1, !
+            }
+        }
+    }
+    Quit
