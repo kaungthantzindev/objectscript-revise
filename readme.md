@@ -25,7 +25,7 @@ This ObjectScript routine (`wwKTEST1KTZ`) is used for performing various queries
     do ^LoadData
     ```
 
-5. **Run answer routine file**
+5. **Run answer routine file**(for question 1)
     ```objectscript
-    do Q1^wwKTEST1KTZ  (for question 1)
+    do Q1^wwKTEST1KTZ
     ```
