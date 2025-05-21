@@ -136,7 +136,7 @@ Q9;
     }
     Quit
 
-Q10;
+Q10;Please register the groups Q, R, S, T, U, and W in the group permission records for the routine "KEIW0011".
     Write "10.「KEIW0011」のグループ権限レコードに「Q、R、S、T、U、W」のグループを登録してください。", !
     Set K1 = "KEIW0011"
     Set groupCodes = $LISTBUILD("Q","R","S","T","U","W")
@@ -147,7 +147,7 @@ Q10;
     Write "Done !", !
     Quit
 
-Q11;
+Q11;Please display all routines registered in the authorization master, showing how many times each one is registered under individual (employee) permissions and group permissions.
     Write "11. 権限マスタに登録されているルーチンが社員権限とグループ権限それぞれ何件ずつ登録されているか全て表示してください。", !!
     Set K1 = ""
     For {
@@ -172,6 +172,21 @@ Q11;
         }
 
         Write "Routine : ", K1, ?22, " | Group permission : ", groupCount, " | Employee count : ", employeeCount, !
+    }
+
+    Quit
+
+Q12; From the employee permission records of the authorization master, retrieve the data for routine "EIGWINQ0420", and display the names of all employees who have permission (specifically, the field called P3: 漢字社員略名 = Kanji Employee Short Name).
+    Write !, "12. 権限マスタの社員権限レコードより、「EIGWINQ0420」のデータを取得し、権限を持っている社員の名前[P3漢字社員略名]を全て表示してください。", !!
+    Set employeeID = ""
+    For {
+        Set employeeID = $ORDER(^MKEN2KTZ("EIGWINQ0420", "SYA", employeeID))
+        Quit:employeeID=""
+        Set employeeData = $GET(^MSYA(employeeID))
+        Set employeeShortCode = $PIECE(employeeData , $CHAR(22), 7)
+        Set employeeName = $PIECE(employeeData , $CHAR(22), 1)
+
+        Write "Employee ID : ", employeeID, " | Name : ", employeeName, " | Short code : ", employeeName, !
     }
 
     Quit
