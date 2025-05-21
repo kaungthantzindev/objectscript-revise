@@ -273,3 +273,22 @@ Q16;From the authorization master, display the routines that have only group per
 
     Quit
 
+Q17;When an employee number is entered, display all routines that the employee has permission for. If the employee has no permissions at all, display 'No permissions'.
+    Write "17. 社員番号を入力すると、権限のあるルーチンを全て表示するようにしてください。全く権限のない人は権限なしと表示してください。", !
+    Read "Enter employee number : ", employeeNumber , !
+    Set K1 = ""
+    Set hasPermisson = 0
+    For {
+        Set K1 = $ORDER(^MKEN2KTZ(K1))
+        Quit:K1=""
+        If $DATA(^MKEN2KTZ(K1, "SYA", employeeNumber)) {
+            Write K1, !
+            set hasPermisson = 1
+        }
+    }
+    
+    if hasPermisson = 0 {
+        Write "権限なし (no permission)"
+    }
+
+    Quit
