@@ -186,7 +186,42 @@ Q12; From the employee permission records of the authorization master, retrieve 
         Set employeeShortCode = $PIECE(employeeData , $CHAR(22), 7)
         Set employeeName = $PIECE(employeeData , $CHAR(22), 1)
 
-        Write "Employee ID : ", employeeID, " | Name : ", employeeName, " | Short code : ", employeeName, !
+        Write "Employee ID : ", employeeID, " | Name : ", employeeName, " | Short code : ", employeeShortCode, !
+    }
+
+    Quit
+
+Q13;From the employee permission records, display all routines that have at least one employee registered on or before May 31, 2018.
+    Write !, "社員権限レコードより、2018年5月31日以前に登録された社員がいるルーチンを全て表示してください。", !!
+    #; I am not sure this function should work with MSYA or MKEN2 ,
+    #; And there is table structure explaination only for MKEN2, I think we need also for MSYA table structure explaination
+
+    #; Set employeeID = ""
+    #; For {
+    #;     Set employeeID = $ORDER(^MSYA(employeeID))
+    #;     Quit:employeeID=""
+    #;     Set employeeData = $GET(^MSYA(employeeID))
+    #;     // process ^MSYA(employeeID)
+    #;     Set registerDate = $PIECE(employeeData, $CHAR(22) , 14 )
+    #;     Write registerDate, !
+    #; }
+
+    Set K1 = ""
+    For {
+        Set K1 = $ORDER(^MKEN2KTZ(K1))
+        Quit:K1=""
+        // process ^MKEN2KTZ(K1)
+
+        Set employeeID = ""
+        For {
+            Set employeeID = $ORDER(^MKEN2KTZ(K1, "SYA", employeeID))
+            Quit:employeeID=""
+            Set employeeData = $GET(^MKEN2KTZ(K1, "SYA", employeeID))
+            If (employeeData < 20180531) {
+                Write "Routine ID : ", K1, ?23, " | Employee ID : ", employeeID, " | Register Date : ", employeeData, !
+            }
+            // process ^MKEN2KTZ()
+        }
     }
 
     Quit
