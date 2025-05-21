@@ -148,10 +148,30 @@ Q10;
     Quit
 
 Q11;
-    Write "11. 権限マスタに登録されているルーチンが社員権限とグループ権限それぞれ何件ずつ登録されているか全て表示してください。", !
+    Write "11. 権限マスタに登録されているルーチンが社員権限とグループ権限それぞれ何件ずつ登録されているか全て表示してください。", !!
     Set K1 = ""
     For {
-        Set key = $ORDER(array(key))
-        Quit:key=""
-        // process array(key)
+        Set K1 = $ORDER(^MKEN2KTZ(K1))
+        Quit:K1=""
+        Set groupCount = 0
+        Set employeeCount = 0
+
+        Set groupID = ""
+        For {
+            Set groupID = $ORDER(^MKEN2KTZ(K1, "GRP", groupID))
+            Quit:groupID=""
+            Set groupCount = groupCount + 1
+        }
+
+        Set employeeID = ""
+        For {
+            Set employeeID = $ORDER(^MKEN2KTZ(K1, "SYA", employeeID))
+            Quit:employeeID=""
+            Set employeeCount = employeeCount + 1
+            // process ^MKEN2KTZ(employeeID)
+        }
+
+        Write "Routine : ", K1, ?22, " | Group permission : ", groupCount, " | Employee count : ", employeeCount, !
     }
+
+    Quit
